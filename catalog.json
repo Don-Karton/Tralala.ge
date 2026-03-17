@@ -1,0 +1,72 @@
+{
+  "categories": [
+    { "id": "hero", "label": "Adventure.inc" },
+    { "id": "quests", "label": "Квесты и Игры" },
+    { "id": "masterclass", "label": "Мастер-классы" },
+    { "id": "show", "label": "Шоу-программы" },
+    { "id": "extras", "label": "Дополнения" }
+  ],
+  "catalog": [
+    {
+      "id": "p1",
+      "category": "quests",
+      "title": "Пираты: Тайна Луны",
+      "shortDesc": "Легендарный поиск сокровищ",
+      "fullDesc": "Захватывающее приключение для юных корсаров. В программе: карта капитана Флинта, расшифровка черных меток, преодоление рифов и финальный штурм сундука с золотом.",
+      "hourlyPrice": 200,
+      "image": "https://images.unsplash.com/photo-1599305090598-fe179d501227?auto=format&fit=crop&q=80&w=800",
+      "features": ["2 аниматора-пирата", "Костюмированный реквизит", "Подарки всем участникам"]
+    },
+    {
+      "id": "p2",
+      "category": "quests",
+      "title": "Детективное Агентство",
+      "shortDesc": "Интеллектуальный триллер",
+      "fullDesc": "Станьте частью элитного спецподразделения. Сбор улик, снятие отпечатков, работа с ультрафиолетом и логические ловушки.",
+      "hourlyPrice": 180,
+      "image": "https://images.unsplash.com/photo-1589118949245-7d38baf380d6?auto=format&fit=crop&q=80&w=800",
+      "features": ["Проф. детективный набор", "Криминалистическая лаборатория", "Сертификаты агентов"]
+    },
+    {
+      "id": "p9",
+      "category": "quests",
+      "title": "Adventure.inc EXCLUSIVE",
+      "shortDesc": "Флагманская программа бренда",
+      "fullDesc": "Наш золотой стандарт. Уникальное оборудование, которое вы не встретите больше нигде в Тбилиси.",
+      "hourlyPrice": 300,
+      "image": "https://images.unsplash.com/photo-1514525253361-b83f859b73c0?auto=format&fit=crop&q=80&w=800",
+      "features": ["Топ-ведущие компании", "Мультимедийный экран", "Спецэффекты"]
+    },
+    {
+      "id": "m1",
+      "category": "masterclass",
+      "title": "Fashion Design: Браслеты",
+      "shortDesc": "Создание брендовых аксессуаров",
+      "fullDesc": "Мастер-класс по созданию стильных украшений. Работаем с чешским стеклом и натуральными камнями.",
+      "hourlyPrice": 150,
+      "image": "https://images.unsplash.com/photo-1611085583191-a3b1a308c021?auto=format&fit=crop&q=80&w=800",
+      "features": ["Премиум материалы", "Подарочная упаковка", "Мастер-дизайнер"]
+    },
+    {
+      "id": "s1",
+      "category": "show",
+      "title": "Крио-кухня: Мороженое",
+      "shortDesc": "Ледяное гастро-шоу",
+      "fullDesc": "Самое вкусное научное шоу! Изготовление натурального мороженого с помощью жидкого азота (-196°C).",
+      "hourlyPrice": 280,
+      "image": "https://images.unsplash.com/photo-1505394033223-2892b4d2936a?auto=format&fit=crop&q=80&w=800",
+      "features": ["Натуральные сливки", "Топпинги на выбор", "Интерактив с азотом"]
+    },
+    {
+      "id": "e1",
+      "category": "extras",
+      "title": "Фотограф & Видео",
+      "shortDesc": "Контент вашего праздника",
+      "fullDesc": "Профессиональная съемка на iPhone 16 Pro для Reels и классический репортаж.",
+      "hourlyPrice": 200,
+      "image": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=800",
+      "features": ["Готовность 3 дня", "Монтаж 1 рилса", "Все исходники"]
+    }
+  ],
+  "durationOptions": [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]
+}
