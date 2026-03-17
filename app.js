@@ -293,7 +293,7 @@ function updateCartUI() {
     document.getElementById('cart-footer').classList.add('hidden');
   } else {
     cartItemsContainer.innerHTML = cart.map(item => `
-      <div class="flex items-center gap-5 bg-gray-50 p-6 rounded-[2.5rem] border border-gray-100 animate-in slide-in-from-right duration-500">
+      <div class="flex items-center gap-5 bg-gray-50 p-6 rounded-[2.5rem] border border-gray-100 animate-slide-in-right">
         <img src="${item.image}" class="w-20 h-20 rounded-3xl object-cover shadow-sm" />
         <div class="flex-1">
           <h4 class="font-bold text-sm leading-tight mb-2">${item.title}</h4>
@@ -331,7 +331,9 @@ function toggleCart(open) {
 
 function completeOrder() {
   document.getElementById('cart-content').classList.add('hidden');
-  document.getElementById('order-complete-msg').classList.remove('hidden');
+  const msg = document.getElementById('order-complete-msg');
+  msg.classList.remove('hidden');
+  msg.classList.add('animate-zoom-in');
   cart = [];
   updateCartUI();
 }
