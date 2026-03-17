@@ -1,432 +1,78 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { 
-  ShoppingBag, X, Plus, Minus, Star, CheckCircle2,
-  ChevronRight
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adventure.inc | Premium Events in Tbilisi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-[#F2F2F7] text-[#1C1C1E] font-sans selection:bg-blue-500 selection:text-white h-screen overflow-hidden">
 
-// --- CATALOG DATA ---
-const CATEGORIES = [
-  { id: 'hero', label: 'Adventure.inc' },
-  { id: 'quests', label: 'Квесты и Игры' },
-  { id: 'masterclass', label: 'Мастер-классы' },
-  { id: 'show', label: 'Шоу-программы' },
-  { id: 'extras', label: 'Дополнения' }
-];
-
-const CATALOG = [
-  {
-    id: 'p1',
-    category: 'quests',
-    title: 'Пираты: Тайна Луны',
-    shortDesc: 'Легендарный поиск сокровищ',
-    fullDesc: 'Захватывающее приключение для юных корсаров. В программе: карта капитана Флинта, расшифровка черных меток, преодоление рифов и финальный штурм сундука с золотом.',
-    hourlyPrice: 200,
-    image: 'https://images.unsplash.com/photo-1599305090598-fe179d501227?auto=format&fit=crop&q=80&w=800',
-    features: ['2 аниматора-пирата', 'Костюмированный реквизит', 'Подарки всем участникам']
-  },
-  {
-    id: 'p2',
-    category: 'quests',
-    title: 'Детективное Агентство',
-    shortDesc: 'Интеллектуальный триллер',
-    fullDesc: 'Станьте частью элитного спецподразделения. Сбор улик, снятие отпечатков, работа с ультрафиолетом и логические ловушки.',
-    hourlyPrice: 180,
-    image: 'https://images.unsplash.com/photo-1589118949245-7d38baf380d6?auto=format&fit=crop&q=80&w=800',
-    features: ['Проф. детективный набор', 'Криминалистическая лаборатория', 'Сертификаты агентов']
-  },
-  {
-    id: 'p9',
-    category: 'quests',
-    title: 'Adventure.inc EXCLUSIVE',
-    shortDesc: 'Флагманская программа бренда',
-    fullDesc: 'Наш золотой стандарт. Уникальное оборудование, которое вы не встретите больше нигде в Тбилиси.',
-    hourlyPrice: 300,
-    image: 'https://images.unsplash.com/photo-1514525253361-b83f859b73c0?auto=format&fit=crop&q=80&w=800',
-    features: ['Топ-ведущие компании', 'Мультимедийный экран', 'Спецэффекты']
-  },
-  {
-    id: 'm1',
-    category: 'masterclass',
-    title: 'Fashion Design: Браслеты',
-    shortDesc: 'Создание брендовых аксессуаров',
-    fullDesc: 'Мастер-класс по созданию стильных украшений. Работаем с чешским стеклом и натуральными камнями.',
-    hourlyPrice: 150,
-    image: 'https://images.unsplash.com/photo-1611085583191-a3b1a308c021?auto=format&fit=crop&q=80&w=800',
-    features: ['Премиум материалы', 'Подарочная упаковка', 'Мастер-дизайнер']
-  },
-  {
-    id: 's1',
-    category: 'show',
-    title: 'Крио-кухня: Мороженое',
-    shortDesc: 'Ледяное гастро-шоу',
-    fullDesc: 'Самое вкусное научное шоу! Изготовление натурального мороженого с помощью жидкого азота (-196°C).',
-    hourlyPrice: 280,
-    image: 'https://images.unsplash.com/photo-1505394033223-2892b4d2936a?auto=format&fit=crop&q=80&w=800',
-    features: ['Натуральные сливки', 'Топпинги на выбор', 'Интерактив с азотом']
-  },
-  {
-    id: 'e1',
-    category: 'extras',
-    title: 'Фотограф & Видео',
-    shortDesc: 'Контент вашего праздника',
-    fullDesc: 'Профессиональная съемка на iPhone 16 Pro для Reels и классический репортаж.',
-    hourlyPrice: 200,
-    image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=800',
-    features: ['Готовность 3 дня', 'Монтаж 1 рилса', 'Все исходники']
-  }
-];
-
-const DURATION_OPTIONS = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4];
-
-export default function App() {
-  const [cart, setCart] = useState([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [selectedDuration, setSelectedDuration] = useState(1);
-  const [orderComplete, setOrderComplete] = useState(false);
-  const [activeTitle, setActiveTitle] = useState('Adventure.inc');
-  const [activeId, setActiveId] = useState('hero');
-  
-  const mainRef = useRef(null);
-  const scrollRefs = useRef({});
-
-  // Оптимизированный Intersection Observer для плавного переключения заголовка
-  useEffect(() => {
-    const observerOptions = {
-      root: mainRef.current,
-      threshold: 0.5, // Порог для уверенного определения активной секции
-    };
-
-    const handleIntersect = (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const label = entry.target.getAttribute('data-label');
-          const id = entry.target.getAttribute('id');
-          if (label) {
-            setActiveTitle(label);
-          }
-          if (id) {
-            setActiveId(id);
-          }
-        }
-      });
-    };
-
-    const observer = new IntersectionObserver(handleIntersect, observerOptions);
-    const sections = document.querySelectorAll('section[data-label]');
-    sections.forEach((section) => observer.observe(section));
-
-    return () => observer.disconnect();
-  }, []);
-
-  const addToCart = (item, duration) => {
-    const cartItem = {
-      ...item,
-      cartId: `${item.id}-${Date.now()}`,
-      duration: duration,
-      totalPrice: Math.round(item.hourlyPrice * duration)
-    };
-    setCart([...cart, cartItem]);
-    setSelectedItem(null);
-    setSelectedDuration(1);
-  };
-
-  const removeFromCart = (cartId) => setCart(cart.filter(i => i.cartId !== cartId));
-  const cartTotal = cart.reduce((acc, item) => acc + item.totalPrice, 0);
-
-  return (
-    <div className="bg-[#F2F2F7] text-[#1C1C1E] font-sans selection:bg-blue-500 selection:text-white h-screen overflow-hidden">
-      
-      {/* Navigation Bar */}
-      <nav className="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-2xl border-b border-gray-200/50 h-16">
-        <div className="max-w-6xl mx-auto px-6 lg:pr-48 h-full flex items-center justify-between transition-all duration-500">
-          <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-black italic shrink-0 shadow-lg">A</div>
-            <div className="relative h-6 overflow-hidden">
-              <h1 className="text-xl font-bold tracking-tight transition-all duration-700 ease-in-out">
-                {activeTitle}
-              </h1>
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-2xl border-b border-gray-200/50 h-16">
+        <div class="max-w-6xl mx-auto px-6 lg:pr-48 h-full flex items-center justify-between transition-all duration-500">
+            <div class="flex items-center gap-3 overflow-hidden">
+                <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-black italic shrink-0 shadow-lg">A</div>
+                <div class="relative h-6 overflow-hidden">
+                    <h1 id="active-title" class="text-xl font-bold tracking-tight">Adventure.inc</h1>
+                </div>
             </div>
-          </div>
-          <button onClick={() => setIsCartOpen(true)} className="relative p-2 bg-gray-100 rounded-full active:scale-90 transition-transform duration-200">
-            <ShoppingBag className="w-6 h-6" />
-            {cart.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">
-                {cart.length}
-              </span>
-            )}
-          </button>
+            <button onclick="toggleCart(true)" class="relative p-2 bg-gray-100 rounded-full active:scale-90 transition-transform duration-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                <span id="cart-count" class="hidden absolute -top-1 -right-1 bg-blue-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">0</span>
+            </button>
         </div>
-      </nav>
+    </nav>
 
-      {/* Vertical Snap Container - Optimized for smooth snapping */}
-      <main 
-        ref={mainRef} 
-        className="snap-y snap-mandatory h-screen overflow-y-auto scroll-smooth scrollbar-hide"
-        style={{ scrollSnapStop: 'always', WebkitOverflowScrolling: 'touch' }}
-      >
-        
-        {/* Hero Section */}
-        <section id="hero" data-label="Adventure.inc" className="snap-start snap-always min-h-screen flex flex-col justify-center px-6 lg:pr-48 max-w-6xl mx-auto transition-all duration-500">
-          <header className="pt-20">
-            <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-8">
-              <Star className="w-3 h-3 fill-current" />
-              <span>Premium Events in Tbilisi</span>
-            </div>
-            <h1 className="text-5xl md:text-9xl font-black tracking-tighter leading-[0.85] mb-8">
-              ВАШ <br /> ПРАЗДНИК <br /> <span className="text-gray-300">В ДЕТАЛЯХ</span>
-            </h1>
-            <p className="text-xl text-gray-500 max-w-md font-medium leading-tight">
-              Листайте вниз для выбора категории.
-            </p>
-          </header>
-        </section>
+    <!-- Main Container -->
+    <main id="main-container" class="snap-y snap-mandatory h-screen overflow-y-auto scroll-smooth scrollbar-hide" style="scroll-snap-stop: always; -webkit-overflow-scrolling: touch;">
+        <!-- Content will be injected by app.js -->
+    </main>
 
-        {/* Category Sections */}
-        {CATEGORIES.filter(c => c.id !== 'hero').map(category => (
-          <section 
-            key={category.id} 
-            id={category.id}
-            data-label={category.label}
-            className="snap-start snap-always min-h-screen flex flex-col justify-center py-20 scroll-mt-16"
-          >
-            <div className="max-w-6xl mx-auto w-full px-6 lg:pr-48 relative group/section transition-all duration-500">
-              <h2 className="text-5xl font-black tracking-tight mb-12 opacity-90">{category.label}</h2>
-              
-              {/* Horizontal Navigation Buttons */}
-              <div className="hidden md:block">
-                <button
-                  onClick={(e) => { e.stopPropagation(); scrollRefs.current[category.id]?.scrollBy({ left: -400, behavior: 'smooth' }); }}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-14 h-14 bg-white/90 backdrop-blur shadow-2xl rounded-full flex items-center justify-center -translate-x-1/2 opacity-0 group-hover/section:opacity-100 transition-all hover:bg-blue-600 hover:text-white"
-                >
-                  <ChevronRight className="w-7 h-7 rotate-180" />
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); scrollRefs.current[category.id]?.scrollBy({ left: 400, behavior: 'smooth' }); }}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-14 h-14 bg-white/90 backdrop-blur shadow-2xl rounded-full flex items-center justify-center translate-x-1/2 opacity-0 group-hover/section:opacity-100 transition-all hover:bg-blue-600 hover:text-white"
-                >
-                  <ChevronRight className="w-7 h-7" />
-                </button>
-              </div>
+    <!-- Side Navigation -->
+    <nav id="side-nav" class="fixed right-8 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col gap-6 items-center">
+        <!-- Dots will be injected by app.js -->
+    </nav>
 
-              {/* Horizontal Snap Scroll - Improved smoothness */}
-              <div
-                ref={el => scrollRefs.current[category.id] = el}
-                className="flex overflow-x-auto gap-10 pb-10 -mx-6 px-6 snap-x snap-mandatory scroll-smooth scrollbar-hide"
-                style={{ scrollSnapStop: 'always', scrollPaddingLeft: '1.5rem', scrollPaddingRight: '1.5rem' }}>
-                {CATALOG.filter(i => i.category === category.id).map(item => (
-                  <div 
-                    key={item.id} 
-                    onClick={() => setSelectedItem(item)} 
-                    className="min-w-[85vw] md:min-w-[450px] snap-center cursor-pointer"
-                  >
-                    <div className="bg-white rounded-[3.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-700 group border border-gray-100 h-full">
-                      <div className="h-[55vh] relative overflow-hidden">
-                        <img 
-                          src={item.image} 
-                          alt={item.title} 
-                          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" 
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                        <div className="absolute bottom-10 left-10 right-10 text-white">
-                          <span className="text-xs font-bold uppercase tracking-widest bg-blue-600 px-4 py-1.5 rounded-full mb-4 inline-block">От {item.hourlyPrice} ₾/час</span>
-                          <h3 className="text-3xl font-black leading-tight mb-3">{item.title}</h3>
-                          <p className="text-white/70 text-sm font-medium line-clamp-2">{item.shortDesc}</p>
-                        </div>
-                      </div>
-                      <div className="p-8 flex justify-between items-center bg-white">
-                        <span className="text-gray-400 font-bold flex items-center gap-2 text-sm uppercase tracking-wider">
-                          Детали <ChevronRight className="w-4 h-4" />
-                        </span>
-                        <div className="w-14 h-14 bg-black text-white rounded-full flex items-center justify-center group-hover:bg-blue-600 transition-colors shadow-lg">
-                          <Plus className="w-7 h-7" />
-                        </div>
-                      </div>
+    <!-- Cart Drawer -->
+    <div class="fixed inset-0 z-[100] pointer-events-none">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 transition-opacity duration-500 pointer-events-auto" onclick="toggleCart(false)"></div>
+        <div id="cart-drawer" class="absolute right-0 top-0 w-full max-w-md bg-white h-full flex flex-col translate-x-full transition-transform duration-500 cubic-bezier(0.2, 1, 0.2, 1) pointer-events-auto shadow-2xl">
+            <!-- Normal Cart Content -->
+            <div id="cart-content" class="flex flex-col h-full">
+                <div class="p-8 flex items-center justify-between border-b">
+                    <h3 class="text-2xl font-black tracking-tight uppercase">Ваш праздник</h3>
+                    <button onclick="toggleCart(false)" class="p-3 bg-gray-100 rounded-full active:scale-90 transition-transform"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                </div>
+                <div id="cart-items" class="flex-1 overflow-y-auto p-8 space-y-6 scrollbar-hide">
+                    <!-- Items injected by app.js -->
+                </div>
+                <div id="cart-footer" class="hidden p-10 border-t bg-white space-y-8">
+                    <div class="flex justify-between items-end">
+                        <span class="text-gray-400 font-black uppercase tracking-widest text-xs">К оплате</span>
+                        <span id="cart-total-price" class="text-5xl font-black tracking-tighter">0 ₾</span>
                     </div>
-                  </div>
-                ))}
-                {/* Spacer to allow last item to snap-center properly */}
-                <div className="min-w-[5vw] shrink-0" />
-              </div>
-            </div>
-          </section>
-        ))}
-      </main>
-
-      {/* Item Modal (Sheet) */}
-      {selectedItem && (
-        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-md animate-fade-in" onClick={() => setSelectedItem(null)}></div>
-          <div className="relative w-full max-w-xl bg-white rounded-t-[3.5rem] sm:rounded-[4rem] overflow-hidden animate-slide-up shadow-2xl max-h-[92vh] overflow-y-auto scrollbar-hide">
-            <div className="h-72 relative">
-              <img src={selectedItem.image} alt={selectedItem.title} className="w-full h-full object-cover" />
-              <button onClick={() => setSelectedItem(null)} className="absolute top-8 right-8 w-12 h-12 bg-black/20 backdrop-blur-xl rounded-full flex items-center justify-center text-white">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            
-            <div className="p-10">
-              <h2 className="text-4xl font-black mb-6 leading-tight">{selectedItem.title}</h2>
-              
-              <div className="mb-10">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400 mb-5 block italic">Длительность программы</label>
-                <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide snap-x">
-                  {DURATION_OPTIONS.map(d => (
-                    <button 
-                      key={d} 
-                      onClick={() => setSelectedDuration(d)}
-                      className={`px-7 py-5 rounded-[1.5rem] font-black text-sm transition-all shrink-0 snap-start border-2 ${
-                        selectedDuration === d 
-                        ? 'bg-blue-600 border-blue-600 text-white scale-105 shadow-xl shadow-blue-500/30' 
-                        : 'bg-white border-gray-100 text-gray-400 hover:border-gray-300'
-                      }`}
-                    >
-                      {d === 0.5 ? '30 МИН' : `${d} Ч.`}
-                    </button>
-                  ))}
+                    <button onclick="completeOrder()" class="w-full h-20 bg-black text-white rounded-[2.5rem] font-black tracking-widest text-lg flex items-center justify-center gap-3 shadow-2xl active:scale-95 transition-all">ОФОРМИТЬ</button>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 mb-10">
-                {selectedItem.features.map((f, i) => (
-                  <div key={i} className="flex items-center gap-2 text-[10px] font-black text-gray-400 bg-gray-50 p-4 rounded-2xl uppercase tracking-tighter">
-                    <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
-                    {f}
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex items-center justify-between p-8 bg-gray-50 rounded-[2.5rem] mb-10">
-                <div>
-                  <div className="text-4xl font-black tracking-tighter">{Math.round(selectedItem.hourlyPrice * selectedDuration)} ₾</div>
-                  <div className="text-[10px] font-black text-gray-400 uppercase mt-1">Итоговая стоимость</div>
-                </div>
-                <div className="text-right">
-                   <div className="text-xl font-bold">{selectedItem.hourlyPrice} ₾</div>
-                   <div className="text-[10px] font-black text-gray-400 uppercase">Тариф в час</div>
-                </div>
-              </div>
-
-              <button 
-                onClick={() => addToCart(selectedItem, selectedDuration)}
-                className="w-full h-20 bg-black text-white rounded-[2.5rem] font-black text-xl hover:bg-blue-600 active:scale-95 transition-all shadow-2xl"
-              >
-                ЗАБРОНИРОВАТЬ
-              </button>
             </div>
-          </div>
+            <!-- Order Complete Message -->
+            <div id="order-complete-msg" class="hidden flex-1 flex flex-col items-center justify-center p-12 text-center animate-fade-in">
+                <div class="w-28 h-28 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-8"><svg class="w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+                <h3 class="text-4xl font-black mb-4 tracking-tighter">ПРИНЯТО!</h3>
+                <p class="text-gray-500 font-medium">Adventure.inc перезвонит вам в течение 10 минут для подтверждения.</p>
+            </div>
         </div>
-      )}
-
-      {/* Cart Drawer */}
-      {isCartOpen && (
-        <div className="fixed inset-0 z-[100] flex justify-end">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fade-in" onClick={() => setIsCartOpen(false)}></div>
-          <div className="relative w-full max-w-md bg-white h-full flex flex-col animate-slide-left shadow-2xl">
-            {orderComplete ? (
-              <div className="flex-1 flex flex-col items-center justify-center p-12 text-center animate-in fade-in zoom-in duration-700">
-                <div className="w-28 h-28 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-8 animate-bounce"><CheckCircle2 className="w-14 h-14" /></div>
-                <h3 className="text-4xl font-black mb-4 tracking-tighter">ПРИНЯТО!</h3>
-                <p className="text-gray-500 font-medium">Adventure.inc перезвонит вам в течение 10 минут для подтверждения.</p>
-              </div>
-            ) : (
-              <>
-                <div className="p-8 flex items-center justify-between border-b">
-                  <h3 className="text-2xl font-black tracking-tight uppercase">Ваш праздник</h3>
-                  <button onClick={() => setIsCartOpen(false)} className="p-3 bg-gray-100 rounded-full active:scale-90 transition-transform"><X className="w-5 h-5" /></button>
-                </div>
-                <div className="flex-1 overflow-y-auto p-8 space-y-6 scrollbar-hide">
-                  {cart.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-gray-300 opacity-40"><ShoppingBag className="w-20 h-20 mb-4" /><p className="font-black uppercase tracking-widest text-xs">Корзина пуста</p></div>
-                  ) : (
-                    cart.map(item => (
-                      <div key={item.cartId} className="flex items-center gap-5 bg-gray-50 p-6 rounded-[2.5rem] border border-gray-100 animate-in slide-in-from-right duration-500">
-                        <img src={item.image} className="w-20 h-20 rounded-3xl object-cover shadow-sm" />
-                        <div className="flex-1">
-                          <h4 className="font-bold text-sm leading-tight mb-2">{item.title}</h4>
-                          <div className="flex items-center gap-2">
-                             <span className="text-blue-600 font-black text-lg">{item.totalPrice} ₾</span>
-                             <span className="text-[10px] bg-white border border-gray-100 text-gray-500 px-3 py-1 rounded-full font-black uppercase">{item.duration} ч.</span>
-                          </div>
-                        </div>
-                        <button onClick={() => removeFromCart(item.cartId)} className="text-red-400 p-3 hover:bg-red-50 rounded-full transition-colors"><Minus className="w-5 h-5" /></button>
-                      </div>
-                    ))
-                  )}
-                </div>
-                {cart.length > 0 && (
-                  <div className="p-10 border-t bg-white space-y-8">
-                    <div className="flex justify-between items-end">
-                      <span className="text-gray-400 font-black uppercase tracking-widest text-xs">К оплате</span>
-                      <span className="text-5xl font-black tracking-tighter">{cartTotal} ₾</span>
-                    </div>
-                    <button onClick={() => setOrderComplete(true)} className="w-full h-20 bg-black text-white rounded-[2.5rem] font-black tracking-widest text-lg flex items-center justify-center gap-3 shadow-2xl active:scale-95 transition-all">ОФОРМИТЬ</button>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Side Navigation - Technological/Futuristic look */}
-      <nav className="fixed right-8 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col gap-6 items-center">
-        <div className="absolute h-full w-[1px] bg-gray-300/30 left-1/2 -translate-x-1/2 -z-10" />
-        {CATEGORIES.map((cat, idx) => (
-          <button
-            key={cat.id}
-            onClick={() => {
-              const el = document.getElementById(cat.id);
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
-            className="group relative flex items-center justify-center"
-          >
-            <div className={`
-              w-10 h-10 rounded-sm border transition-all duration-500 flex items-center justify-center font-mono text-[10px] bg-white/50 backdrop-blur-sm
-              ${activeId === cat.id
-                ? 'border-blue-500 text-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)] scale-110 animate-glow-pulse'
-                : 'border-gray-200 text-gray-400 group-hover:border-gray-400 group-hover:text-gray-600'}
-            `}>
-              {idx.toString().padStart(2, '0')}
-              {activeId === cat.id && (
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                  <div className="absolute left-0 w-full h-[2px] bg-blue-400/50 animate-tech-scan" />
-                </div>
-              )}
-            </div>
-
-            {/* Tooltip */}
-            <div className="absolute right-full mr-4 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
-              <div className="bg-black text-white text-[10px] font-bold px-3 py-1 whitespace-nowrap uppercase tracking-widest border border-blue-500/30 shadow-2xl">
-                {cat.label}
-              </div>
-            </div>
-          </button>
-        ))}
-      </nav>
-
-      <style dangerouslySetInnerHTML={{__html: `
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        @keyframes slide-left { from { transform: translateX(100%); } to { transform: translateX(0); } }
-        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes tech-scan {
-          0% { top: -10%; }
-          100% { top: 110%; }
-        }
-        @keyframes glow-pulse {
-          0%, 100% { opacity: 0.8; box-shadow: 0 0 5px rgba(59,130,246,0.5); }
-          50% { opacity: 1; box-shadow: 0 0 20px rgba(59,130,246,0.8); }
-        }
-        .animate-slide-up { animation: slide-up 0.6s cubic-bezier(0.2, 1, 0.2, 1); }
-        .animate-slide-left { animation: slide-left 0.6s cubic-bezier(0.2, 1, 0.2, 1); }
-        .animate-fade-in { animation: fade-in 0.5s ease-out; }
-        .animate-tech-scan { animation: tech-scan 2s linear infinite; }
-        .animate-glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
-      `}} />
     </div>
-  );
-}
+
+    <!-- Modal Overlay -->
+    <div id="modal-overlay" class="hidden fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-md animate-fade-in" onclick="closeModal()"></div>
+        <div id="modal-content" class="relative w-full max-w-xl bg-white rounded-t-[3.5rem] sm:rounded-[4rem] overflow-hidden animate-slide-up shadow-2xl max-h-[92vh] overflow-y-auto scrollbar-hide">
+            <!-- Content injected by app.js -->
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
